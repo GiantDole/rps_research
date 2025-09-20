@@ -1,0 +1,28 @@
+{
+  "name": "rps-research",
+  "version": "1.0.0",
+  "description": "Rock Paper Scissors game with Seal encryption",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "setup-account": "tsx rps_research/scripts/setup-account.ts",
+    "check-balance": "tsx rps_research/scripts/check-balance.ts",
+    "commit": "tsx rps_research/scripts/commitAction.ts",
+    "reveal": "tsx rps_research/scripts/revealActions.ts",
+    "deploy": "sui client publish --path ./rps_research --gas-budget 200000000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["sui", "seal", "encryption", "rps"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mysten/seal": "^0.6.0",
+    "@mysten/sui": "^1.16.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
