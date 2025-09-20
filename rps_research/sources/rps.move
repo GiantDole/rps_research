@@ -80,6 +80,33 @@ public struct Round has store {
     move_b: Option<Action>
 }
 
+/// Init function - called when package is published
+#[test_only]
+public fun test_init(ctx: &mut TxContext) {
+    init(ctx);
+}
+
+fun init(ctx: &mut TxContext) {
+    // Create admin capability
+    let admin_cap = AdminCap {
+        id: object::new(ctx)
+    };
+    
+    // Create config with default values
+    let config = Config {
+        id: object::new(ctx),
+        allowedAssets: table::new(ctx),
+        minTimeout: 60_000, // 1 minute minimum
+        maxTimeout: 3_600_000 // 1 hour maximum
+    };
+    
+    // Transfer admin cap to deployer
+    transfer::transfer(admin_cap, ctx.sender());
+    
+    // Share the config object
+    transfer::share_object(config);
+}
+
 /// Functions
 public fun createGame<T>(
     config: &Config,
@@ -167,7 +194,7 @@ public fun joinGame<T>(
     };
     let current_time = clock.timestamp_ms();
 
-    if (game.next_timeout > current_time) {
+    if (current_time > game.next_timeout) {
         errors::game_timed_out(); //should the game be closed here?
     };
 
@@ -491,6 +518,76 @@ public fun addOrEditSupportedAsset(
         // Add new
         table::add(&mut config.allowedAssets, typename, asset_config);
     }
+}
+
+// Public accessor functions
+public fun game_status<T>(game: &Game<T>): GameStatus {
+    game.game_status
+}
+
+public fun player_a<T>(game: &Game<T>): address {
+    game.player_a
+}
+
+public fun player_b<T>(game: &Game<T>): Option<address> {
+    game.player_b
+}
+
+public fun winner<T>(game: &Game<T>): Option<address> {
+    game.winner
+}
+
+public fun stake_per_player<T>(game: &Game<T>): u64 {
+    game.stake_per_player
+}
+
+public fun points_a<T>(game: &Game<T>): u8 {
+    game.points_a
+}
+
+public fun points_b<T>(game: &Game<T>): u8 {
+    game.points_b
+}
+
+public fun rounds_to_win<T>(game: &Game<T>): u8 {
+    game.rounds_to_win
+}
+
+public fun current_round<T>(game: &Game<T>): u8 {
+    game.current_round
+}
+
+public fun round_timeout<T>(game: &Game<T>): u64 {
+    game.round_timeout
+}
+
+public fun next_timeout<T>(game: &Game<T>): u64 {
+    game.next_timeout
+}
+
+public fun created_at<T>(game: &Game<T>): u64 {
+    game.created_at
+}
+
+// Test helper functions
+#[test_only]
+public fun game_status_open(): GameStatus {
+    GameStatus::OPEN
+}
+
+#[test_only]
+public fun game_status_active(): GameStatus {
+    GameStatus::ACTIVE
+}
+
+#[test_only]
+public fun game_status_cancelled(): GameStatus {
+    GameStatus::CANCELLED
+}
+
+#[test_only]
+public fun game_status_completed(): GameStatus {
+    GameStatus::COMPLETED
 }
 
 // Policy function for Seal KMS services to check if decryption keys can be released
