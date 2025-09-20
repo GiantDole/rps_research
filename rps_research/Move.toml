@@ -6,11 +6,11 @@ authors = ["GiantDole (aak2229@columbia.edu)"]      # e.g., ["Joe Smith (joesmit
 
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.52.1" }
-seal = { git = "https://github.com/MystenLabs/seal.git", subdir = "move/seal", rev = "main" }
+seal = { git = "https://github.com/MystenLabs/seal.git", subdir = "move/seal", rev = "main", addr_subst = { "seal" = "0x8afa5d31dbaa0a8fb07082692940ca3d56b5e856c5126cb5a3693f0a4de63b82" }}
 
 # For remote import, use the `{ git = "...", subdir = "...", rev = "..." }`.
 # Revision can be a branch, a tag, and a commit hash.
-# MyRemotePackage = { git = "https://some.remote/host.git", subdir = "remote/path", rev = "main" }
+# MyRemotePackage = { git = "https://some.remote/host.git", subdir = "remote/path", rev = "main", }
 
 # For local dependencies use `local = path`. Path is relative to the package root
 # Local = { local = "../path/to" }
