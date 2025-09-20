@@ -492,3 +492,37 @@ public fun addOrEditSupportedAsset(
         table::add(&mut config.allowedAssets, typename, asset_config);
     }
 }
+
+// Policy function for Seal KMS services to check if decryption keys can be released
+// Anyone can decrypt, but only for rounds where both players have committed
+public fun check_policy<T>(
+    game: &Game<T>,
+    round_index: u64,              // Which round the commitment belongs to
+    commitment_id: vector<u8>,     // The ID from the EncryptedObject being decrypted
+): bool {
+    // Check if the game is active
+    if (game.game_status != GameStatus::ACTIVE) {
+        return false
+    };
+    
+    // Check if the round exists
+    if (round_index >= vector::length(&game.rounds)) {
+        return false
+    };
+    
+    // Get the specified round
+    let round = vector::borrow(&game.rounds, round_index);
+    
+    // Both commitments must exist before ANY decryption is allowed
+    if (!round.commitment_a.is_some() || !round.commitment_b.is_some()) {
+        return false
+    };
+    
+    // Verify this commitment actually belongs to this round
+    // Compare the commitment_id with the IDs stored in our round's commitments
+    let commitment_a_id = bf_hmac_encryption::id(round.commitment_a.borrow());
+    let commitment_b_id = bf_hmac_encryption::id(round.commitment_b.borrow());
+    
+    // Only allow decryption if this is one of the commitments from this round
+    *commitment_a_id == commitment_id || *commitment_b_id == commitment_id
+}
